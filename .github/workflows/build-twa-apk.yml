@@ -13,31 +13,47 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: ''
 
       - name: Set up Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Generate Signing Keystore & Extract SHA-256
+      - name: Prepare signing keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
-          if [ ! -f android.keystore ]; then
+          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ]; then
+            echo "Using keystore from GitHub Secrets"
+            echo "$KEYSTORE_BASE64" | base64 -d > android.keystore
+            echo "NEW_KEY=false" >> $GITHUB_ENV
+            echo "STOREPASS=$KEYSTORE_PASSWORD" >> $GITHUB_ENV
+            STOREPASS="$KEYSTORE_PASSWORD"
+          else
+            echo "No secrets found, generating a NEW keystore (first run)"
+            STOREPASS=$(openssl rand -hex 16)
             keytool -genkeypair -v \
               -keystore android.keystore \
               -alias restartx27 \
               -keyalg RSA -keysize 2048 -validity 10000 \
-              -storepass "restartx27password" \
-              -keypass "restartx27password" \
+              -storepass "$STOREPASS" \
+              -keypass "$STOREPASS" \
               -dname "CN=Eliyas Hossain Anik, OU=RestartX27, O=RestartX27, L=Dhaka, S=Dhaka, C=BD"
+            echo "NEW_KEY=true" >> $GITHUB_ENV
+            echo "STOREPASS=$STOREPASS" >> $GITHUB_ENV
+            printf 'alias: restartx27\npassword: %s\n' "$STOREPASS" > KEYSTORE-INFO.txt
           fi
-          SHA256=$(keytool -list -v -keystore android.keystore -alias restartx27 -storepass "restartx27password" | grep -oE "SHA256: ([0-9A-F]{2}:){31}[0-9A-F]{2}" | awk '{print $2}')
+          SHA256=$(keytool -list -v -keystore android.keystore -alias restartx27 -storepass "$STOREPASS" | grep -oE "SHA256: ([0-9A-F]{2}:){31}[0-9A-F]{2}" | awk '{print $2}')
           echo "SHA256=$SHA256" >> $GITHUB_ENV
           echo "$SHA256" > SHA256-FINGERPRINT.txt
           cat <<EOF > assetlinks.json
@@ -57,19 +73,21 @@ jobs:
             }
           ]
           EOF
-          echo "### 🔑 Your Android Signing Key SHA-256" >> $GITHUB_STEP_SUMMARY
-          echo "```" >> $GITHUB_STEP_SUMMARY
-          echo "$SHA256" >> $GITHUB_STEP_SUMMARY
-          echo "```" >> $GITHUB_STEP_SUMMARY
-          echo "### 📄 Copy this into `/.well-known/assetlinks.json` on Netlify:" >> $GITHUB_STEP_SUMMARY
-          echo "```json" >> $GITHUB_STEP_SUMMARY
-          cat assetlinks.json >> $GITHUB_STEP_SUMMARY
-          echo "```" >> $GITHUB_STEP_SUMMARY
+          {
+            echo '### Signing key SHA-256'
+            echo '```'
+            echo "$SHA256"
+            echo '```'
+            echo '### Put this in /.well-known/assetlinks.json on Netlify'
+            echo '```json'
+            cat assetlinks.json
+            echo '```'
+          } >> $GITHUB_STEP_SUMMARY
 
       - name: Install Bubblewrap CLI & Build TWA
         env:
-          BUBBLEWRAP_KEYSTORE_PASSWORD: "restartx27password"
-          BUBBLEWRAP_KEY_PASSWORD: "restartx27password"
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ env.STOREPASS }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ env.STOREPASS }}
         run: |
           npm install -g @bubblewrap/cli
           mkdir -p ~/.bubblewrap
@@ -83,13 +101,21 @@ jobs:
           bubblewrap update --skipVersionUpgrade
           bubblewrap build --skipPwaValidation
 
-      - name: Upload Signed APK, AAB, Keystore & assetlinks.json
+      - name: Upload APK, AAB, SHA-256 & assetlinks.json
         uses: actions/upload-artifact@v4
         with:
           name: RestartX27-Android-TWA-Release
           path: |
             app-release-signed.apk
             app-release-bundle.aab
-            android.keystore
             SHA256-FINGERPRINT.txt
             assetlinks.json
+
+      - name: Upload NEW keystore (first run only)
+        if: env.NEW_KEY == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: KEYSTORE-BACKUP-PRIVATE
+          path: |
+            android.keystore
+            KEYSTORE-INFO.txt
