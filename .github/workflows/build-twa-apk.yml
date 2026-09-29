@@ -2,8 +2,6 @@ name: Build RestartX27 Android TWA (APK + AAB)
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ main, master ]
 
 jobs:
   build-twa:
