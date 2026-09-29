@@ -1,0 +1,95 @@
+name: Build RestartX27 Android TWA (APK + AAB)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build-twa:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate Signing Keystore & Extract SHA-256
+        run: |
+          if [ ! -f android.keystore ]; then
+            keytool -genkeypair -v \
+              -keystore android.keystore \
+              -alias restartx27 \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass "restartx27password" \
+              -keypass "restartx27password" \
+              -dname "CN=Eliyas Hossain Anik, OU=RestartX27, O=RestartX27, L=Dhaka, S=Dhaka, C=BD"
+          fi
+          SHA256=$(keytool -list -v -keystore android.keystore -alias restartx27 -storepass "restartx27password" | grep -oE "SHA256: ([0-9A-F]{2}:){31}[0-9A-F]{2}" | awk '{print $2}')
+          echo "SHA256=$SHA256" >> $GITHUB_ENV
+          echo "$SHA256" > SHA256-FINGERPRINT.txt
+          cat <<EOF > assetlinks.json
+          [
+            {
+              "relation": [
+                "delegate_permission/common.handle_all_urls",
+                "delegate_permission/common.get_login_creds"
+              ],
+              "target": {
+                "namespace": "android_app",
+                "package_name": "com.eliyas.restartx27",
+                "sha256_cert_fingerprints": [
+                  "$SHA256"
+                ]
+              }
+            }
+          ]
+          EOF
+          echo "### 🔑 Your Android Signing Key SHA-256" >> $GITHUB_STEP_SUMMARY
+          echo "```" >> $GITHUB_STEP_SUMMARY
+          echo "$SHA256" >> $GITHUB_STEP_SUMMARY
+          echo "```" >> $GITHUB_STEP_SUMMARY
+          echo "### 📄 Copy this into `/.well-known/assetlinks.json` on Netlify:" >> $GITHUB_STEP_SUMMARY
+          echo "```json" >> $GITHUB_STEP_SUMMARY
+          cat assetlinks.json >> $GITHUB_STEP_SUMMARY
+          echo "```" >> $GITHUB_STEP_SUMMARY
+
+      - name: Install Bubblewrap CLI & Build TWA
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: "restartx27password"
+          BUBBLEWRAP_KEY_PASSWORD: "restartx27password"
+        run: |
+          npm install -g @bubblewrap/cli
+          mkdir -p ~/.bubblewrap
+          cat <<EOF > ~/.bubblewrap/config.json
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$ANDROID_HOME"
+          }
+          EOF
+          yes | sdkmanager --licenses || true
+          bubblewrap update --skipVersionUpgrade
+          bubblewrap build --skipPwaValidation
+
+      - name: Upload Signed APK, AAB, Keystore & assetlinks.json
+        uses: actions/upload-artifact@v4
+        with:
+          name: RestartX27-Android-TWA-Release
+          path: |
+            app-release-signed.apk
+            app-release-bundle.aab
+            android.keystore
+            SHA256-FINGERPRINT.txt
+            assetlinks.json
