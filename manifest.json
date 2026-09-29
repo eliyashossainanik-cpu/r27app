@@ -1,0 +1,119 @@
+{
+  "id": "/",
+  "name": "RestartX27 — Study Focus Engine",
+  "short_name": "RestartX27",
+  "description": "Elite study focus timer with clan leaderboards, analytics, mentor system, and mission control for HSC, SSC & Admission students.",
+  "lang": "bn",
+  "dir": "ltr",
+  "start_url": "/?twa=1",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait-primary",
+  "background_color": "#E9DFC8",
+  "theme_color": "#E9DFC8",
+  "categories": [
+    "education",
+    "productivity"
+  ],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icons/r27c/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/r27c/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/r27c/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/r27c/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Focus Timer",
+      "short_name": "Focus",
+      "description": "Start a new study focus session",
+      "url": "/?twa=1&page=focus",
+      "icons": [
+        {
+          "src": "/icons/r27c/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "My Clan",
+      "short_name": "Clan",
+      "description": "View live clan leaderboard and Clan Wars",
+      "url": "/?twa=1&page=clan",
+      "icons": [
+        {
+          "src": "/icons/r27c/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "short_name": "Stats",
+      "description": "Check study streaks, hours, and subject breakdown",
+      "url": "/?twa=1&page=analytics",
+      "icons": [
+        {
+          "src": "/icons/r27c/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Comeback Sky",
+      "short_name": "Sky",
+      "description": "Explore your monthly study constellation",
+      "url": "/?twa=1&page=sky",
+      "icons": [
+        {
+          "src": "/icons/r27c/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "RestartX27 Study Focus Engine"
+    },
+    {
+      "src": "/og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "RestartX27 Mobile Study Timer & Clan Leaderboard"
+    }
+  ]
+}

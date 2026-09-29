@@ -1,0 +1,67 @@
+{
+  "packageId": "com.eliyas.restartx27",
+  "host": "restartx27.netlify.app",
+  "name": "RestartX27",
+  "launcherName": "RestartX27",
+  "display": "standalone",
+  "themeColor": "#E9DFC8",
+  "themeColorDark": "#070709",
+  "navigationColor": "#E9DFC8",
+  "navigationColorDark": "#070709",
+  "navigationDividerColor": "#E9DFC8",
+  "navigationDividerColorDark": "#070709",
+  "backgroundColor": "#E9DFC8",
+  "enableNotifications": true,
+  "startUrl": "/?twa=1",
+  "iconUrl": "https://restartx27.netlify.app/icons/r27c/icon-512.png",
+  "maskableIconUrl": "https://restartx27.netlify.app/icons/r27c/maskable-512.png",
+  "monochromeIconUrl": "https://restartx27.netlify.app/icons/r27c/badge-96.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "restartx27"
+  },
+  "appVersionName": "3.67.92",
+  "appVersionCode": 1,
+  "shortcuts": [
+    {
+      "name": "Focus Timer",
+      "shortName": "Focus",
+      "url": "https://restartx27.netlify.app/?twa=1&page=focus",
+      "chosenIconUrl": "https://restartx27.netlify.app/icons/r27c/icon-192.png"
+    },
+    {
+      "name": "My Clan",
+      "shortName": "Clan",
+      "url": "https://restartx27.netlify.app/?twa=1&page=clan",
+      "chosenIconUrl": "https://restartx27.netlify.app/icons/r27c/icon-192.png"
+    },
+    {
+      "name": "Analytics",
+      "shortName": "Stats",
+      "url": "https://restartx27.netlify.app/?twa=1&page=analytics",
+      "chosenIconUrl": "https://restartx27.netlify.app/icons/r27c/icon-192.png"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://restartx27.netlify.app/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://restartx27.netlify.app/",
+  "minSdkVersion": 21,
+  "orientation": "portrait",
+  "fingerprints": [
+    {
+      "name": "Release Signing Key",
+      "value": "14:6D:E9:83:C5:73:06:50:D8:EE:B9:95:2F:34:FC:64:16:A0:83:42:E6:1D:BE:A8:8A:04:96:B2:3F:CF:44:E5"
+    }
+  ],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": []
+}
